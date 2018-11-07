@@ -24,7 +24,10 @@ namespace iOS11Client
                 RedirectUri = "SFAuthenticationSessionExample://callback",
                 PostLogoutRedirectUri = "SFAuthenticationSessionExample://callback",
 
-                Browser = new SFAuthenticationSessionBrowser()
+                //Browser = new SFAuthenticationSessionBrowser()
+
+                // new in iOS 12
+                Browser = new ASWebAuthenticationSessionBrowser()
 			};
 
 			_client = new OidcClient(options);   
