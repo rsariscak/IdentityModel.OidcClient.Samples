@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using IdentityModel.OidcClient;
+using Microsoft.IdentityModel.Logging;
 using Newtonsoft.Json.Linq;
 using UIKit;
 
@@ -14,6 +15,8 @@ namespace iOS11Client
 
         protected ViewController(IntPtr handle) : base(handle)
         {
+            IdentityModelEventSource.ShowPII = true;
+
 			var options = new OidcClientOptions
 			{
 				Authority = "https://demo.identityserver.io",
