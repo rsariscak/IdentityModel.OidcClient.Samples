@@ -13,6 +13,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ApiButton" />
+    <Button
+        android:text="Refresh Token"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/RefreshButton" />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

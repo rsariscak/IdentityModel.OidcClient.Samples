@@ -4,6 +4,7 @@ using Android.OS;
 using System;
 using IdentityModel.OidcClient;
 using System.Net.Http;
+using IdentityModel.Client;
 
 namespace AndroidClient
 {
@@ -12,6 +13,8 @@ namespace AndroidClient
     {
         private TextView _output;
         private static LoginResult _result;
+        private OidcClientOptions _options;
+        private string _authority = "https://demo.identityserver.io";
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -25,28 +28,29 @@ namespace AndroidClient
             var apiButton = FindViewById<Button>(Resource.Id.ApiButton);
             apiButton.Click += _apiButton_Click;
 
+            var refreshButton = FindViewById<Button>(Resource.Id.RefreshButton);
+            refreshButton.Click += _refreshButton_Click;
+
             _output = FindViewById<TextView>(Resource.Id.Output);
 
             ShowResults();
+
+            _options = new OidcClientOptions
+            {
+                Authority = _authority,
+                ClientId = "native.hybrid",
+                Scope = "openid profile api offline_access",
+                RedirectUri = "io.identitymodel.native://callback",
+                ResponseMode = OidcClientOptions.AuthorizeResponseMode.Redirect,
+                Browser = new ChromeCustomTabsBrowser(this)
+            };
         }
 
         private async void _loginButton_Click(object sender, System.EventArgs e)
         {
-            var authority = "https://demo.identityserver.io";
-
             try
             {
-                var options = new OidcClientOptions
-                {
-                    Authority = authority,
-                    ClientId = "native.hybrid",
-                    Scope = "openid profile api",
-                    RedirectUri = "io.identitymodel.native://callback",
-                    ResponseMode = OidcClientOptions.AuthorizeResponseMode.Redirect,
-                    Browser = new ChromeCustomTabsBrowser(this)
-                };
-
-                var oidcClient = new OidcClient(options);
+                var oidcClient = new OidcClient(_options);
                 _result = await oidcClient.LoginAsync();
 
                 // used to redisplay this app if it's hidden by browser
@@ -75,6 +79,7 @@ namespace AndroidClient
                         Log($"   {claim.Type}:{claim.Value}");
                     }
                     Log("Access Token: " + _result.AccessToken);
+                    Log("Refresh Token: " + _result.RefreshToken);
                 }
             }
         }
@@ -112,6 +117,32 @@ namespace AndroidClient
             else
             {
                 Log("Login to call API");
+            }
+        }
+
+        private async void _refreshButton_Click(object sender, EventArgs e)
+        {
+            if (_result?.RefreshToken != null)
+            {
+                var client = new TokenClient(_authority + "/connect/token", _options.ClientId);
+                var result = await client.RequestRefreshTokenAsync(_result.RefreshToken);
+
+                Log("Refresh Token Result", clear: true);
+                if (result.IsError)
+                {
+                    Log("Error: " + result.Error);
+                    return;
+                }
+
+                _result.RefreshToken = result.RefreshToken;
+                _result.AccessToken = result.AccessToken;
+
+                Log("Access Token: " + _result.AccessToken);
+                Log("Refresh Token: " + _result.RefreshToken);
+            }
+            else
+            {
+                Log("No Refresh Token", true);
             }
         }
 
