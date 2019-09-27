@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text;
+using IdentityModel.Client;
 using IdentityModel.OidcClient;
 using Microsoft.IdentityModel.Logging;
 using Newtonsoft.Json.Linq;
@@ -17,23 +18,19 @@ namespace iOS11Client
         {
             IdentityModelEventSource.ShowPII = true;
 
-			var options = new OidcClientOptions
-			{
-				Authority = "https://demo.identityserver.io",
-				ClientId = "native.hybrid",
-				Scope = "openid profile email api offline_access",
-                ResponseMode = OidcClientOptions.AuthorizeResponseMode.Redirect,
+            var options = new OidcClientOptions
+            {
+                Authority = "https://demo.identityserver.io",
+                ClientId = "native.code",
+                Scope = "openid profile email api offline_access",
 
                 RedirectUri = "SFAuthenticationSessionExample://callback",
                 PostLogoutRedirectUri = "SFAuthenticationSessionExample://callback",
 
-                //Browser = new SFAuthenticationSessionBrowser()
-
-                // new in iOS 12
                 Browser = new ASWebAuthenticationSessionBrowser()
-			};
+            };
 
-			_client = new OidcClient(options);   
+            _client = new OidcClient(options);
         }
 
         public override void ViewDidLoad()

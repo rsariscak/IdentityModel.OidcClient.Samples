@@ -2,13 +2,15 @@
 using System.Threading.Tasks;
 using IdentityModel.OidcClient.Browser;
 using AuthenticationServices;
+using System;
+using UIKit;
 
 namespace iOS11Client
 {
     public class ASWebAuthenticationSessionBrowser : IBrowser
     {
         ASWebAuthenticationSession _af;
-
+        
         public Task<BrowserResult> InvokeAsync(BrowserOptions options)
         {
             var wait = new TaskCompletionSource<BrowserResult>();
@@ -40,8 +42,22 @@ namespace iOS11Client
                     }
                 });
 
+            // iOS 13 requires the PresentationContextProvider set
+            if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
+            {
+                _af.PresentationContextProvider = new PresentationContextProviderToSharedKeyWindow();
+            }
+                
             _af.Start();
             return wait.Task;
+        }
+
+        class PresentationContextProviderToSharedKeyWindow : NSObject, IASWebAuthenticationPresentationContextProviding
+        {
+            public UIWindow GetPresentationAnchor(ASWebAuthenticationSession session)
+            {
+                return UIApplication.SharedApplication.KeyWindow;
+            }
         }
     }
 }
