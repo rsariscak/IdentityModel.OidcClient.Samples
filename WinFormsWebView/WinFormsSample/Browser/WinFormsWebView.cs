@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using IdentityModel.OidcClient;
 using IdentityModel.OidcClient.Browser;
 using System;
 using System.Text;
@@ -8,18 +9,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace IdentityModel.OidcClient.WebView.WinForms
+namespace WinFormsSample
 {
-    public class WinFormsEmbeddedBrowser : IBrowser
+    public class WinFormsWebView : IBrowser
     {
         private readonly Func<Form> _formFactory;
 
-        public WinFormsEmbeddedBrowser(Func<Form> formFactory)
+        public WinFormsWebView(Func<Form> formFactory)
         {
             _formFactory = formFactory;
         }
 
-        public WinFormsEmbeddedBrowser(string title = "Authenticating ...", int width = 1024, int height = 768)
+        public WinFormsWebView(string title = "Authenticating ...", int width = 1024, int height = 768)
             : this(() => new Form
             {
                 Name = "WebAuthentication",
@@ -29,7 +30,7 @@ namespace IdentityModel.OidcClient.WebView.WinForms
             })
         { }
 
-        public async Task<BrowserResult> InvokeAsync(BrowserOptions options)
+        public async Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken token = default)
         {
             using (var form = _formFactory.Invoke())
             using (var browser = new ExtendedWebBrowser()
@@ -52,8 +53,18 @@ namespace IdentityModel.OidcClient.WebView.WinForms
                 browser.NavigateError += (o, e) =>
                 {
                     e.Cancel = true;
-                    result.ResultType = BrowserResultType.HttpError;
-                    result.Error = e.StatusCode.ToString();
+
+                    if (e.Url.StartsWith(options.EndUrl))
+                    {
+                        result.ResultType = BrowserResultType.Success;
+                        result.Response = e.Url;
+                    }
+                    else
+                    {
+                        result.ResultType = BrowserResultType.HttpError;
+                        result.Error = e.StatusCode.ToString();
+                    }
+
                     signal.Release();
                 };
 
@@ -62,15 +73,9 @@ namespace IdentityModel.OidcClient.WebView.WinForms
                     if (e.Url.StartsWith(options.EndUrl))
                     {
                         e.Cancel = true;
+
                         result.ResultType = BrowserResultType.Success;
-                        if (options.ResponseMode == OidcClientOptions.AuthorizeResponseMode.FormPost)
-                        {
-                            result.Response = Encoding.UTF8.GetString(e.PostData ?? new byte[] { });
-                        }
-                        else
-                        {
-                            result.Response = e.Url;
-                        }
+                        result.Response = e.Url;
                         signal.Release();
                     }
                 };

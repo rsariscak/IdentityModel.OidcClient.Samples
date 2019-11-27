@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace WinForms
+namespace WinFormsSample
 {
     static class Program
     {
@@ -13,7 +13,7 @@ namespace WinForms
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SampleForm());
+            Application.Run(new Form1());
         }
     }
 }

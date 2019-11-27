@@ -7,8 +7,8 @@ using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Windows.Forms;
 
-namespace IdentityModel.OidcClient.WebView.WinForms
-{
+namespace WinFormsSample
+{ 
     internal class ExtendedWebBrowser : WebBrowser
     {
         private AxHost.ConnectionPointCookie _cookie;
