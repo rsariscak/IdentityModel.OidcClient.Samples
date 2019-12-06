@@ -3,7 +3,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using IdentityModel.OidcClient.Browser;
-using mshtml;
 using System;
 using System.Linq;
 using System.Threading;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace WpfSample.Auth
+namespace WpfWebView
 {
     public class WpfEmbeddedBrowser : IBrowser
     {
@@ -22,7 +21,7 @@ namespace WpfSample.Auth
 
         }
 
-        public async Task<BrowserResult> InvokeAsync(BrowserOptions options)
+        public async Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken cancellationToken = default)
         {
             _options = options;
 
@@ -51,12 +50,10 @@ namespace WpfSample.Auth
                 {
                     e.Cancel = true;
 
-                    var responseData = GetResponseDataFromFormPostPage(webBrowser);
-
                     result = new BrowserResult()
                     {
                         ResultType = BrowserResultType.Success,
-                        Response = responseData
+                        Response = e.Uri.AbsoluteUri
                     };
 
                     signal.Release();
@@ -82,23 +79,6 @@ namespace WpfSample.Auth
         private bool BrowserIsNavigatingToRedirectUri(Uri uri)
         {
             return uri.AbsoluteUri.StartsWith(_options.EndUrl);
-        }
-
-        private string GetResponseDataFromFormPostPage(WebBrowser webBrowser)
-        {
-            var document = (IHTMLDocument3)webBrowser.Document;
-            var inputElements = document.getElementsByTagName("INPUT").OfType<IHTMLElement>();
-            var resultUrl = "?";
-
-            foreach (var input in inputElements)
-            {
-                resultUrl += input.getAttribute("name") + "=";
-                resultUrl += input.getAttribute("value") + "&";
-            }
-
-            resultUrl = resultUrl.TrimEnd('&');
-
-            return resultUrl;
         }
     }
 }
