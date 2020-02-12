@@ -23,8 +23,8 @@ namespace ConsoleClientWithBrowser
             Console.WriteLine("|  Sign in with OIDC    |");
             Console.WriteLine("+-----------------------+");
             Console.WriteLine("");
-            Console.WriteLine("Press any key to sign in...");
-            Console.ReadKey();
+            //Console.WriteLine("Press any key to sign in...");
+            //Console.ReadKey();
 
             await Login();
         }
@@ -90,33 +90,33 @@ namespace ConsoleClientWithBrowser
             var menu = "  x...exit  c...call api   ";
             if (currentRefreshToken != null) menu += "r...refresh token   ";
 
-            while (true)
-            {
-                Console.WriteLine("\n\n");
+            //while (true)
+            //{
+            //    Console.WriteLine("\n\n");
 
-                Console.Write(menu);
-                var key = Console.ReadKey();
+            //    Console.Write(menu);
+            //    var key = Console.ReadKey();
 
-                if (key.Key == ConsoleKey.X) return;
-                if (key.Key == ConsoleKey.C) await CallApi(currentAccessToken);
-                if (key.Key == ConsoleKey.R)
-                {
-                    var refreshResult = await _oidcClient.RefreshTokenAsync(currentRefreshToken);
-                    if (result.IsError)
-                    {
-                        Console.WriteLine($"Error: {refreshResult.Error}");
-                    }
-                    else
-                    {
-                        currentRefreshToken = refreshResult.RefreshToken;
-                        currentAccessToken = refreshResult.AccessToken;
+            //    if (key.Key == ConsoleKey.X) return;
+            //    if (key.Key == ConsoleKey.C) await CallApi(currentAccessToken);
+            //    if (key.Key == ConsoleKey.R)
+            //    {
+            //        var refreshResult = await _oidcClient.RefreshTokenAsync(currentRefreshToken);
+            //        if (result.IsError)
+            //        {
+            //            Console.WriteLine($"Error: {refreshResult.Error}");
+            //        }
+            //        else
+            //        {
+            //            currentRefreshToken = refreshResult.RefreshToken;
+            //            currentAccessToken = refreshResult.AccessToken;
 
-                        Console.WriteLine("\n\n");
-                        Console.WriteLine($"access token:   {result.AccessToken}");
-                        Console.WriteLine($"refresh token:  {result?.RefreshToken ?? "none"}");
-                    }
-                }
-            }
+            //            Console.WriteLine("\n\n");
+            //            Console.WriteLine($"access token:   {result.AccessToken}");
+            //            Console.WriteLine($"refresh token:  {result?.RefreshToken ?? "none"}");
+            //        }
+            //    }
+            //}
         }
 
         private static async Task CallApi(string currentAccessToken)
